@@ -1,4 +1,4 @@
-package com.tony.puzzle;
+package com.tony.wuziqi;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -11,8 +11,8 @@ public class DesktopLauncher {
         config.title="maj";
         config.x = 1000;
         config.y = 0;
-        config.width = (int) (1280);
-        config.height = (int) (720);
+        config.width = (int) (720);
+        config.height = (int) (1280);
         new LwjglApplication(new WuziQI(),config);
 
     }

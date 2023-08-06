@@ -2,6 +2,7 @@ package kw.maj.ai;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.Align;
 import com.kw.gdx.asset.Asset;
 
 import java.awt.Point;
@@ -30,8 +31,7 @@ public class Ai{
 
 
     // ��ʼ����������ͼ
-    public static void initChessBoard(){
-
+    public  void initChessBoard(){
         isBlack=true;
         toJudge.clear();
         for(int i=1;i<=15;++i)
@@ -49,27 +49,25 @@ public class Ai{
         isBlack=false;
     }
 
-    static void setImage(int x,int y){
-        String path = "cocos/AlertLayer/cancel.png";
+     void setImage(int x,int y){
+        String path = "black_chess.png";
         if (isBlack) {
-            path = "cocos/AlertLayer/ok.png";
+            path = "white_chess.png";
         }
         Image image = new Image(Asset.getAsset().getTexture(path));
         group.addActor(image);
-        image.setSize(50,50);
-        image.setPosition(x*50,y*50);
+        float xx = 46;
+        image.setSize(xx,xx);
+        image.setPosition(x*xx+ 50,y*xx+ 50, Align.center);
     }
 
     // ͨ������¼����õ�����λ�ý�������
-    public static void putChess(int x,int y){
+    public  void putChess(int x,int y){
         chessBoard[y][x]=isBlack?1:-1;
-
         setImage(x,y);
         if(isEnd(x,y)){
-
             System.out.println("--------success--------------------");
             group.clearChildren();
-            String s=Ai.isBlack?"����ʤ":"����ʤ";
             isBlack=true;
             initChessBoard();
         }
@@ -86,7 +84,7 @@ public class Ai{
     }
 
     // ai������ں���
-    public static void myAI(){
+    public  void myAI(){
         Node node=new Node();
         dfs(0,node,MINN,MAXN,null);
         Point now=node.bestChild.p;
@@ -96,7 +94,7 @@ public class Ai{
     }
 
     // alpha beta dfs
-    private static void dfs(int deep,Node root,int alpha,int beta,Point p){
+    private  void dfs(int deep,Node root,int alpha,int beta,Point p){
         if(deep==searchDeep){
             root.mark=getMark();
             // System.out.printf("%d\t%d\t%d\n",p.x,p.y,root.mark);
@@ -173,7 +171,7 @@ public class Ai{
         // if(deep==0) System.out.printf("******************************************\n");
     }
 
-    public static int getMark(){
+    public  int getMark(){
         int res=0;
         for(int i=1;i<=size;++i){
             for(int j=1;j<=size;++j){
@@ -237,7 +235,7 @@ public class Ai{
     }
 
     // for debug
-    public static void debug(){
+    public  void debug(){
         for(int i=1;i<=size;++i){
             for(int j=1;j<=size;++j){
                 System.out.printf("%d\t",chessBoard[i][j]);
@@ -247,7 +245,7 @@ public class Ai{
     }
 
     // �ж��Ƿ�һ��ȡʤ
-    public static boolean isEnd(int x,int y){
+    public  boolean isEnd(int x,int y){
         // �ж�һ���Ƿ���������
         int cnt=1;
         int col=x,row=y;
@@ -293,18 +291,18 @@ public class Ai{
 
 
     public void userOption(int x,int y) {
-        Ai.putChess(x, y);
-        Ai.print();
+        putChess(x, y);
+        print();
         if (!Ai.isFinished) {
             Ai.isBlack = true;
-            Ai.myAI();
+            myAI();
 
-            Ai.print();
+            print();
         }
         Ai.isFinished = false;
     }
 
-//    public static void main(String[] args) {
+//    public  void main(String[] args) {
 //        initChessBoard();
 //        Scanner scanner = new Scanner(System.in);
 //        while (true) {
@@ -324,7 +322,7 @@ public class Ai{
 //        }
 //    }
 
-    public static void print(){
+    public  void print(){
         System.out.println("----------------------------------------");
         int[][] chessBoard1 = chessBoard;
         for (int i = 0; i < chessBoard1.length; i++) {
