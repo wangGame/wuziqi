@@ -1,8 +1,13 @@
 package kw.maj.ai;
 
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.kw.gdx.asset.Asset;
 
 import java.awt.Point;
@@ -12,16 +17,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class Ai{
+    public static int width = 14;
     //
     public static boolean isBlack=false;//��־���ӵ���ɫ
-    public static int[][] chessBoard=new int[17][17]; //�������ӵİڷ������0���ӣ�1���ӣ���1����
+    public static int[][] chessBoard=new int[width+2][width+2]; //�������ӵİڷ������0���ӣ�1���ӣ���1����
     private static HashSet<Point> toJudge=new HashSet<Point>(); // ai���ܻ�����ĵ�
     private static int dr[]=new int[]{-1,1,-1,1,0,0,-1,1}; // ��������
     private static int dc[]=new int[]{1,-1,-1,1,-1,1,0,0}; //��������
     public static final int MAXN=1<<28;
     public static final int MINN=-MAXN;
     private static int searchDeep=4;    //�������
-    private static final int size=15;   //���̴�С
+    private static final int size=14;   //���̴�С
     public static boolean isFinished=false;
 
     private static Group group;
@@ -32,10 +38,10 @@ public class Ai{
 
     // ��ʼ����������ͼ
     public  void initChessBoard(){
-        isBlack=true;
+        isBlack=false;
         toJudge.clear();
-        for(int i=1;i<=15;++i)
-            for(int j=1;j<=15;++j)
+        for(int i=1;i<=size;++i)
+            for(int j=1;j<=size;++j)
                 chessBoard[i][j]=0;
         chessBoard[8][8]=1;
         for(int i=0;i<8;++i) {
@@ -46,7 +52,7 @@ public class Ai{
             }
         }
         setImage(8,8);
-        isBlack=false;
+
     }
 
      void setImage(int x,int y){
@@ -55,6 +61,7 @@ public class Ai{
             path = "white_chess.png";
         }
         Image image = new Image(Asset.getAsset().getTexture(path));
+        image.setName("image"+x+""+y);
         group.addActor(image);
         float xx = 46;
         image.setSize(xx,xx);
@@ -62,14 +69,28 @@ public class Ai{
     }
 
     // ͨ������¼����õ�����λ�ý�������
-    public  void putChess(int x,int y){
+    public  boolean putChess(int x,int y){
+
+        if (chessBoard[y][x]!=0){
+            System.out.println("-------error---------------------");
+        }
         chessBoard[y][x]=isBlack?1:-1;
         setImage(x,y);
         if(isEnd(x,y)){
-            System.out.println("--------success--------------------");
-            group.clearChildren();
             isBlack=true;
-            initChessBoard();
+            for (Point point : success) {
+                Actor actor = group.findActor("image" + point.x + "" + point.y);
+                if (actor!=null) {
+                    actor.addAction(Actions.sequence(Actions.repeat(5,Actions.sequence(
+                            Actions.fadeOut(0.4f),
+                            Actions.fadeIn(0.5f)
+                    )),Actions.run(()->{
+                        initChessBoard();
+                    })));
+                }
+            }
+            group.setTouchable(Touchable.disabled);
+            return true;
         }
         else{
             Point p=new Point(x,y);
@@ -81,16 +102,25 @@ public class Ai{
                     toJudge.add(now);
             }
         }
+
+        return false;
     }
 
     // ai������ں���
     public  void myAI(){
+        isBlack=!isBlack;
         Node node=new Node();
         dfs(0,node,MINN,MAXN,null);
         Point now=node.bestChild.p;
-        // toJudge.remove(now);
-        putChess(now.x,now.y);
-        isBlack=false;
+         toJudge.remove(now);
+        boolean b = putChess(now.x, now.y);
+
+
+        if (!b) {
+            group.addAction(Actions.delay(1, Actions.run(() -> {
+                myAI();
+            })));
+        }
     }
 
     // alpha beta dfs
@@ -244,44 +274,78 @@ public class Ai{
         }
     }
 
+    ArrayList<Point> success = new ArrayList<>();
     // �ж��Ƿ�һ��ȡʤ
     public  boolean isEnd(int x,int y){
+        success.clear();
         // �ж�һ���Ƿ���������
         int cnt=1;
         int col=x,row=y;
-        while(--col>0 && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        success.add(new Point(col,row));
+        while(--col>0 && chessBoard[row][col]==chessBoard[y][x]) {
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         col=x;row=y;
-        while(++col<=size && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        while(++col<=size && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         if(cnt>=5){
             isFinished=true;
             return true;
         }
+        success.clear();
         // �ж�һ���Ƿ���������
         col=x;row=y;
         cnt=1;
-        while(--row>0 && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        success.add(new Point(col,row));
+        while(--row>0 && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         col=x;row=y;
-        while(++row<=size && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        while(++row<=size && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         if(cnt>=5){
             isFinished=true;
             return true;
         }
+
+        success.clear();
         // �ж���Խ����Ƿ���������
         col=x;row=y;
         cnt=1;
-        while(--col>0 && --row>0 && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        success.add(new Point(col,row));
+        while(--col>0 && --row>0 && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         col=x;row=y;
-        while(++col<=size && ++row<=size && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        while(++col<=size && ++row<=size && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         if(cnt>=5){
             isFinished=true;
             return true;
         }
+        success.clear();
         // �ж��ҶԽ����Ƿ���������
         col=x;row=y;
         cnt=1;
-        while(++row<=size && --col>0 && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        success.add(new Point(col,row));
+        while(++row<=size && --col>0 && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         col=x;row=y;
-        while(--row>0 && ++col<=size && chessBoard[row][col]==chessBoard[y][x]) ++cnt;
+        while(--row>0 && ++col<=size && chessBoard[row][col]==chessBoard[y][x]){
+            ++cnt;
+            success.add(new Point(col,row));
+        }
         if(cnt>=5){
             isFinished=true;
             return true;
@@ -291,15 +355,20 @@ public class Ai{
 
 
     public void userOption(int x,int y) {
-        putChess(x, y);
-        print();
-        if (!Ai.isFinished) {
-            Ai.isBlack = true;
-            myAI();
-
-            print();
+        isBlack=!isBlack;
+        if (x>=1&&x<=size && y>=1&&y<=size) {
+            if (chessBoard[y][x] == 0) {
+                putChess(x, y);
+                print();
+                if (!Ai.isFinished) {
+                    Ai.isBlack = true;
+                    myAI();
+                    print();
+                }
+                Ai.isFinished = false;
+            }
         }
-        Ai.isFinished = false;
+
     }
 
 //    public  void main(String[] args) {
