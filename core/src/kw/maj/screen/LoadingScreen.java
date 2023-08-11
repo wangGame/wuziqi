@@ -23,6 +23,12 @@ public class LoadingScreen extends BaseScreen {
     @Override
     public void show() {
         super.show();
+        Image bg = new Image(Asset.getAsset().getTexture("wood2.png"));
+        addActor(bg);
+        bg.setOrigin(Align.center);
+        float max = Math.max((Constant.GAMEHIGHT / bg.getHeight()), (Constant.GAMEWIDTH / bg.getWidth()));
+        bg.setScale(max);
+        bg.setPosition(Constant.GAMEWIDTH/2.0f,Constant.GAMEHIGHT/2.0f,Align.center);
         WzqGroup group = new WzqGroup();
         addActor(group);
         group.setPosition(Constant.WIDTH/2,Constant.HIGHT/2, Align.center);

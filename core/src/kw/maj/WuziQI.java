@@ -1,5 +1,6 @@
 package kw.maj;
 
+import com.badlogic.gdx.graphics.Color;
 import com.kw.gdx.BaseGame;
 import com.kw.gdx.constant.Constant;
 import com.kw.gdx.resource.annotation.GameInfo;
@@ -11,6 +12,10 @@ import kw.maj.screen.LoadingScreen;
  */
 @GameInfo(width = 720,height = 1280,batch = Constant.COUPOLYGONBATCH)
 public class WuziQI extends BaseGame {
+    public WuziQI(){
+        Constant.viewColor = Color.WHITE;
+    }
+
     @Override
     public void create() {
         super.create();
