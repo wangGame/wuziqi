@@ -3,6 +3,7 @@ package kw.maj.screen;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.kw.gdx.BaseGame;
 import com.kw.gdx.asset.Asset;
@@ -23,14 +24,22 @@ public class LoadingScreen extends BaseScreen {
     @Override
     public void show() {
         super.show();
-        Image bg = new Image(Asset.getAsset().getTexture("wood2.png"));
-        addActor(bg);
-        bg.setOrigin(Align.center);
-        float max = Math.max((Constant.GAMEHIGHT / bg.getHeight()), (Constant.GAMEWIDTH / bg.getWidth()));
-        bg.setScale(max);
-        bg.setPosition(Constant.GAMEWIDTH/2.0f,Constant.GAMEHIGHT/2.0f,Align.center);
-        WzqGroup group = new WzqGroup();
-        addActor(group);
-        group.setPosition(Constant.WIDTH/2,Constant.HIGHT/2, Align.center);
+        Image singleMode = new Image(Asset.getAsset().getTexture("white_chess.png"));
+        singleMode.addListener(new OrdinaryButtonListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                setScreen(GameScreen.class);
+            }
+        });
+        Image multMode = new Image(Asset.getAsset().getTexture("white_chess.png"));
+        addActor(new Table(){{
+            add(singleMode);
+            row();
+            add(multMode);
+            pack();
+            setPosition(Constant.GAMEWIDTH/2,Constant.GAMEHIGHT/2,Align.center);
+        }});
+
     }
 }

@@ -34,7 +34,6 @@ public class WzqGroup extends Group {
         addActor(group);
         group.setDebug(true);
         group.setPosition(getWidth()/2,getHeight()/2, Align.center);
-        init();
         group.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -43,10 +42,11 @@ public class WzqGroup extends Group {
                 int yy = (int) ((y-25) / 46);
                 chessArray[xx][yy] = ConstanNum.HUMEN;
                 board.put(xx, yy, ConstanNum.HUMEN);
-                setImage(ConstanNum.HUMEN,xx,yy);
+                setImage(ConstanNum.userColor,xx,yy);
                 boolean end = isEnd(yy, xx);
                 if (end){
                     System.out.println("用户 -----------success");
+                    group.setTouchable(Touchable.disabled);
                 }else {
                     group.setTouchable(Touchable.disabled);
                     group.addAction(Actions.delay(3, Actions.run(() -> {
@@ -55,6 +55,7 @@ public class WzqGroup extends Group {
                 }
             }
         });
+        group.setTouchable(Touchable.disabled);
     }
 
     public void compute(){
@@ -62,10 +63,11 @@ public class WzqGroup extends Group {
         Point point = board.findPoint(ConstanNum.COM, ConstanNum.searchDeep);
         board.put(point.x, point.y, ConstanNum.COM);
         chessArray[point.x][point.y] = ConstanNum.COM;
-        setImage(ConstanNum.COM, point.x, point.y);
+        setImage(ConstanNum.comColor, point.x, point.y);
         boolean end = isEnd(point.y, point.x);
         if (end){
             System.out.println("-----------success");
+            group.setTouchable(Touchable.disabled);
         }
         group.setTouchable(Touchable.enabled);
     }
@@ -110,18 +112,20 @@ public class WzqGroup extends Group {
     }
 
     private void init() {
+
         group.clearChildren();
         board = new Board();
         board.init();
       /*  int randomY=6;
         int randomX=6;*/
+        if (ConstanNum.userXianshou == 1)return;
         int randomY=getRandom();
         int randomX=getRandom();
 
         chessArray = new int[GRID_NUMBER][GRID_NUMBER];
         board.put(randomX, randomY, ConstanNum.COM);
         chessArray[randomX][randomY] = ConstanNum.COM;
-        setImage(ConstanNum.COM,randomX,randomY);
+        setImage(ConstanNum.comColor,randomX,randomY);
     }
 
 
@@ -249,4 +253,8 @@ public class WzqGroup extends Group {
     }
 
 
+    public void start() {
+        init();
+        group.setTouchable(Touchable.enabled);
+    }
 }

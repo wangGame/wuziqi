@@ -6,6 +6,13 @@ public class ConstanNum {
     //棋子
     public static final int EMPTY=0;
     public static final int  HUMEN=2,COM=1;
+
+    public static int comColor = COM;
+    public static int userColor = HUMEN;
+
+    public static int userXianshou;
+
+
     public static final int EQUE=100;
     //棋盘格数
     public static int GRID_NUMBER = 17;
