@@ -12,7 +12,7 @@ public class ConstanNum {
 
     public static int userXianshou;
     //棋盘格数
-    public static int GRID_NUMBER = 17;
+    public static int GRID_NUMBER = 14;
     //模型打分
     /*
      * 棋型表示

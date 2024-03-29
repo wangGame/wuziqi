@@ -51,26 +51,61 @@ public class WzqGroup extends Group {
                     group.setTouchable(Touchable.disabled);
                 }else {
                     group.setTouchable(Touchable.disabled);
-                    group.addAction(Actions.delay(3, Actions.run(() -> {
-                        compute();
-                    })));
+//                    group.addAction(Actions.delay(3, Actions.run(() -> {
+//                        compute();
+//                    })));
+                    compute();
+
                 }
             }
         });
+
         group.setTouchable(Touchable.disabled);
     }
 
     public void compute(){
         Point point = board.findPoint(ConstanNum.COM, ConstanNum.searchDeep);
-        board.put(point.x, point.y, ConstanNum.COM);
-        chessArray[point.x][point.y] = ConstanNum.COM;
-        setImage(ConstanNum.comColor, point.x, point.y);
-        boolean end = isEnd(point.y, point.x);
+        board.put(point.getX(), point.getY(), ConstanNum.COM);
+        chessArray[point.getX()][point.getY()] = ConstanNum.COM;
+        setImage(ConstanNum.comColor, point.getX(), point.getY());
+        boolean end = isEnd(point.getY(), point.getX());
         if (end){
             System.out.println("-----------success");
             group.setTouchable(Touchable.disabled);
+            return;
         }
         group.setTouchable(Touchable.enabled);
+        addAction(Actions.sequence(
+                Actions.delay(0.3f),
+                Actions.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        compute1();
+                    }
+                })));
+    }
+
+
+    public void compute1(){
+        Point point = board.findPoint(ConstanNum.HUMEN, 6);
+        board.put(point.getX(), point.getY(), ConstanNum.HUMEN);
+        chessArray[point.getX()][point.getY()] = ConstanNum.HUMEN;
+        setImage(ConstanNum.userColor, point.getX(), point.getY());
+        boolean end = isEnd(point.getY(), point.getX());
+        if (end){
+            System.out.println("-----------success");
+            group.setTouchable(Touchable.disabled);
+            return;
+        }
+        group.setTouchable(Touchable.enabled);
+        addAction(Actions.sequence(
+                Actions.delay(0.3f),
+                Actions.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        compute();
+                    }
+                })));
     }
 
     private void init() {
@@ -79,11 +114,11 @@ public class WzqGroup extends Group {
         board.init();
         chessArray = new int[GRID_NUMBER][GRID_NUMBER];
         if (ConstanNum.userXianshou == 1)return;
-        int randomY=getRandom();
-        int randomX=getRandom();
-        board.put(randomX, randomY, ConstanNum.COM);
-        chessArray[randomX][randomY] = ConstanNum.COM;
-        setImage(ConstanNum.comColor,randomX,randomY);
+//        int randomY=getRandom();
+//        int randomX=getRandom();
+//        board.put(randomX, randomY, ConstanNum.COM);
+//        chessArray[randomX][randomY] = ConstanNum.COM;
+//        setImage(ConstanNum.comColor,randomX,randomY);
     }
 
     public  boolean isEnd(int x,int y){

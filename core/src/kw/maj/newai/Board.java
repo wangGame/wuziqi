@@ -44,7 +44,9 @@ public class Board {
 
     //下子
     public void put(int x,int y,int role){
+        //放下棋子
         board[x][y]=role;
+        //计算值
         zobirst.go(x,y,role);
         updateScore(x,y);
         count++;
@@ -183,10 +185,10 @@ public class Board {
             return myLeaf;
         }
         for(Point p:points){
-            put(p.x,p.y,role);
+            put(p.getX(),p.getY(),role);
             int tmpdeep=deep-1;
             if(spread<ConstanNum.spreadLimit){
-                if((role==ConstanNum.COM&&p.scoreCom>= ConstanNum.FIVE)||(role==ConstanNum.HUMEN&&p.scoreCom>=ConstanNum.FIVE)){
+                if((role==ConstanNum.COM&&p.getScoreCom()>= ConstanNum.FIVE)||(role==ConstanNum.HUMEN&&p.getScoreCom()>=ConstanNum.FIVE)){
                     tmpdeep+=2;
                     spread++;
                 }
@@ -202,7 +204,7 @@ public class Board {
             }
             Leaf v=r(tmpdeep,-beta,-alpha,nextrole,step+1,tmpSteps,spread);
             v.score*=-1;
-            remove(p.x,p.y);
+            remove(p.getX(),p.getY());
 
             //开始减枝
 
@@ -237,7 +239,7 @@ public class Board {
         currentSteps.clear();
         //对每一个节点进行迭代查询
         for(Point p:candidates){
-            put(p.x,p.y,role);
+            put(p.getX(),p.getY(),role);
             ArrayList<Point> steps=new ArrayList<>();
             steps.add(p);
             int nextrole;
@@ -251,10 +253,10 @@ public class Board {
             Leaf v=r(deep-1,-beta,-alpha,nextrole,1,(ArrayList<Point>) steps.clone(),0);
             v.score*=-1;
             alpha=Math.max(alpha,v.score);
-            remove(p.x,p.y);
-            p.score=v.score;
-            p.step=v.step;
-            p.steps=v.steps;
+            remove(p.getX(),p.getY());
+             p.setScore(v.score);
+            p.setStep(v.step);
+            p.setSteps(v.steps);
             //超时判定
             if(new Date().getTime()-startDate.getTime()>ConstanNum.timeLimit*1000){
                 break;
@@ -331,8 +333,8 @@ public class Board {
             while (i>=0){
                 Point tmp=currentSteps.get(i);
                 //如果是人，则找电脑分数大于3的地方，如果是机器，则防守人的分数>3的地方
-                if((role==ConstanNum.HUMEN&&tmp.scoreCom>=ConstanNum.THREE)
-                        ||(role==ConstanNum.COM&&tmp.scoreHum>=ConstanNum.THREE)){
+                if((role==ConstanNum.HUMEN&&tmp.getScoreCom()>=ConstanNum.THREE)
+                        ||(role==ConstanNum.COM&&tmp.getScoreHum()>=ConstanNum.THREE)){
                     defendPoints.add(tmp);
                     break;
                 }
@@ -342,8 +344,8 @@ public class Board {
             while (i>=0){
                 Point tmp=currentSteps.get(i);
                 //如果是人，则找人分数大于3的地方进攻，如果是机器，则进攻机器的分数>3的地方
-                if((role==ConstanNum.COM&&tmp.scoreCom>=ConstanNum.THREE)
-                        ||(role==ConstanNum.HUMEN&&tmp.scoreHum>=ConstanNum.THREE)){
+                if((role==ConstanNum.COM&&tmp.getScoreCom()>=ConstanNum.THREE)
+                        ||(role==ConstanNum.HUMEN&&tmp.getScoreHum()>=ConstanNum.THREE)){
                     attackPoints.add(tmp);
                     break;
                 }
@@ -351,10 +353,10 @@ public class Board {
             }
             //如果为空，则找到第一个下棋的地方
             if (!attackPoints.isEmpty())
-                attackPoints.add(currentSteps.get(0).role
+                attackPoints.add(currentSteps.get(0).getRole()
                         == role ? currentSteps.get(0) : currentSteps.get(1));
             if (!defendPoints.isEmpty())
-                defendPoints.add(currentSteps.get(0).role
+                defendPoints.add(currentSteps.get(0).getRole()
                         != role ? currentSteps.get(0) : currentSteps.get(1));
         }
 
@@ -376,10 +378,14 @@ public class Board {
                     if(onlyThrees&&maxScore<ConstanNum.THREE){
                         continue;
                     }
+                    if (i>16||j>16){
+                        System.out.println("-------------------------");
+                    }
                     Point tmpP=new Point(i,j,role);
-                    tmpP.scoreHum=scoreHum;
-                    tmpP.scoreCom=scoreCom;
-                    tmpP.score=maxScore;
+                    tmpP.setScoreHum(scoreHum);
+                    tmpP.setScoreCom(scoreCom);
+                    tmpP.setScore(maxScore);
+
                     if(scoreCom>=ConstanNum.FIVE){
                         fives.add(tmpP);
                     }
@@ -579,7 +585,7 @@ public class Board {
         //empty为中间空白的位置，-1则没有空白
         int count,block,secondCount,empty;
         //棋盘条数
-        int len=ConstanNum.GRID_NUMBER;
+        int len=ConstanNum.GRID_NUMBER-2;
         //最终分数
         int result=0;
         //dir为-1时，全方向遍历，其他时候只遍历一个方向

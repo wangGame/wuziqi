@@ -3,13 +3,16 @@ package kw.maj.newai;
 import java.util.ArrayList;
 
 public class Point implements Comparable {
-    public int x,y;
-    public int role;
-    public int scoreCom,scoreHum;
-    public int score;
-    public int step;
-    public ArrayList<Point> steps;
+    private int x,y;
+    private int role;
+    private int scoreCom,scoreHum;
+    private int score;
+    private int step;
+    private ArrayList<Point> steps;
     public Point(int x, int y, int role){
+        if (x>16||y>16){
+            System.out.println("0000000000000000000000000000000");
+        }
         this.x=x;
         this.y=y;
         this.role=role;
@@ -17,6 +20,9 @@ public class Point implements Comparable {
     public Point(int x, int y){
         this.x=x;
         this.y=y;
+        if (x>15||y>15){
+            System.out.println("0000000000000000000000000000000");
+        }
 
     }
 
@@ -40,5 +46,69 @@ public class Point implements Comparable {
         }
         else
             return (xx.score - score);
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public int getScoreCom() {
+        return scoreCom;
+    }
+
+    public void setScoreCom(int scoreCom) {
+        this.scoreCom = scoreCom;
+    }
+
+    public int getScoreHum() {
+        return scoreHum;
+    }
+
+    public void setScoreHum(int scoreHum) {
+        this.scoreHum = scoreHum;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+
+    public ArrayList<Point> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(ArrayList<Point> steps) {
+        this.steps = steps;
     }
 }
