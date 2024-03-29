@@ -22,49 +22,26 @@ public class Board {
     private HashMap<Integer,CacheObj> caChe;
     //开始时间
     private Date startDate;
-    private boolean comFirst;
+
     public Board() {
-        //需要在这里赋值
+        //棋盘大小
         len=ConstanNum.GRID_NUMBER;
         zobirst=new Zobirst();
-        count=0;
-        board=new int[len][len];
-        comScore=new int[len][len];
-        humScore=new int[len][len];
-        scoreCache=new int[3][4][len][len];
         currentSteps=new ArrayList<>();
         allSteps=new ArrayList<>();
-        comFirst=false;
+        caChe=new HashMap<>();
         maxScore=ConstanNum.FIVE*10;
         minScore=-maxScore;
-        caChe=new HashMap<>();
     }
+
     //重新初始化
     public void init(){
-        count=0;
         board=new int[len][len];
         comScore=new int[len][len];
         humScore=new int[len][len];
         scoreCache=new int[3][4][len][len];
-        currentSteps.clear();
-        allSteps.clear();
-        caChe.clear();
-        //如果上局不是电脑先走，这局就是电脑先走
-        if(!comFirst){
-            put(len/2,len/2,ConstanNum.COM);
-        }
-        comFirst=!comFirst;
     }
-    public boolean backward(){
-        if(allSteps.size()<2){
-            return false;
-        }
-        for(int i=0;i<2;i++){
-            Point point=allSteps.get(allSteps.size()-1);
-            regret(point.x,point.y);
-        }
-        return true;
-    }
+
     //下子
     public void put(int x,int y,int role){
         board[x][y]=role;
@@ -74,6 +51,7 @@ public class Board {
         currentSteps.add(new Point(x,y));
         allSteps.add(new Point(x,y));
     }
+
     //移除棋子
     public void remove(int x,int y){
         int role=board[x][y];
@@ -81,17 +59,6 @@ public class Board {
         board[x][y]=ConstanNum.EMPTY;
         updateScore(x,y);
         allSteps.remove(allSteps.size()-1);
-        currentSteps.remove(currentSteps.size()-1);
-        count--;
-    }
-
-    public void regret(int x,int y){
-        int role=board[x][y];
-        zobirst.go(x,y,role);
-        board[x][y]=ConstanNum.EMPTY;
-        updateScore(x,y);
-        allSteps.remove(allSteps.size()-1);
-        if(currentSteps.size()>0)
         currentSteps.remove(currentSteps.size()-1);
         count--;
     }
@@ -137,6 +104,7 @@ public class Board {
             update(x,y,3);
         }
     }
+
     private void update(int x,int y,int dir){
         int role=board[x][y];
         //如果电脑,或者空白
@@ -154,6 +122,7 @@ public class Board {
             humScore[x][y]=0;
         }
     }
+
     //score为当前局面的评分，step为steps的长度
     class Leaf{
         int score;
@@ -166,6 +135,7 @@ public class Board {
             this.steps=steps;
         }
     }
+
     class CacheObj{
 
         int deep;
@@ -182,6 +152,7 @@ public class Board {
         }
         caChe.put(zobirst.getCode(),new CacheObj(deep,leaf));
     }
+
     //极大极小值搜索,递归搜索，返回下一层中局面最合适的点
     private Leaf r(int deep,int alpha,int beta,int role,int step,ArrayList<Point> steps,int spread){
         CacheObj cacheObj =caChe.get(zobirst.getCode());
@@ -291,6 +262,7 @@ public class Board {
         }
         return alpha;
     }
+
     /* 所谓迭代加深，就是从2层开始，逐步增加搜索深度，直到找到胜利走法或者达到深度限制为止。
     比如我们搜索6层深度，那么我们先尝试2层，如果没有找到能赢的走法，再尝试4层，最后尝试6层。
     我们只尝试偶数层。因为奇数层其实是电脑比玩家多走了一步，忽视了玩家的防守，并不会额外找到更好的解法。*/
@@ -314,7 +286,6 @@ public class Board {
         return candidate.get(0);
     }
 
-
     /*启发函数
      * 变量starBread的用途是用来进行米子计算
      * 所谓米子计算，只是，如果第一步尝试了一个位置A，那么接下来尝试的位置有两种情况：
@@ -326,11 +297,8 @@ public class Board {
      * 而对结果的排序，是要根据role来的
      * 按照成五，活四，双三，活三，其他 的顺序来排序
      */
-
      //在每一步生成所有可以落子的点。
     //并不是所有的空位我们又要搜索，很多位置明显不合适的我们可以直接排除。
-
-
     private ArrayList<Point> gen(int role,boolean onlyThrees,boolean starSpread){
         //进攻点
         ArrayList<Point> attackPoints=new ArrayList<>();
@@ -890,6 +858,7 @@ public class Board {
         result += scoreCache[role][3][px][py];
         return result;
     }
+
     //根据count，empty，block评分
     private int countToScore(int count,int block,int empty){
         //没有空位
@@ -1042,12 +1011,7 @@ public class Board {
         else if(empty == 5 || empty == count-5) {
             return ConstanNum.FIVE;
         }
-
         //无法成5的棋型则返回0
         return 0;
     }
-
-
-
-
 }

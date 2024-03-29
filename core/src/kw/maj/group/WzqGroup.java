@@ -14,25 +14,27 @@ import com.kw.gdx.asset.Asset;
 
 import java.util.ArrayList;
 
-import kw.maj.ai.Ai;
 import kw.maj.newai.Board;
 import kw.maj.newai.ConstanNum;
 import kw.maj.newai.Point;
 
 public class WzqGroup extends Group {
-    Group group;
-    private  Board board;
-    int chessArray [][];
+    private Group group;
+    private Board board;
+    private int chessArray [][];
+    private float size = GRID_NUMBER - 2;
+    private boolean isFinished = false;
+    private ArrayList<Point> success  = new ArrayList<>();
+
     public WzqGroup(){
         setSize(700,700);
-        setDebug(true);
         Image image = new Image(Asset.getAsset().getTexture("board.jpg"));
         addActor(image);
         image.setSize(getWidth(),getHeight());
+
         group = new Group();
         group.setSize(650,650);
         addActor(group);
-        group.setDebug(true);
         group.setPosition(getWidth()/2,getHeight()/2, Align.center);
         group.addListener(new ClickListener(){
             @Override
@@ -59,7 +61,6 @@ public class WzqGroup extends Group {
     }
 
     public void compute(){
-
         Point point = board.findPoint(ConstanNum.COM, ConstanNum.searchDeep);
         board.put(point.x, point.y, ConstanNum.COM);
         chessArray[point.x][point.y] = ConstanNum.COM;
@@ -72,70 +73,22 @@ public class WzqGroup extends Group {
         group.setTouchable(Touchable.enabled);
     }
 
-    @Override
-    public void act(float delta) {
-        super.act(delta);
-//        if (isFinished){
-//            xxx += delta;
-//            if (xxx>5){
-//                isFinished=false;
-//                init();
-//                xxx = 0;
-//
-//            }
-//            return;
-//        }
-//        xx += delta;
-//        if (xx >1){
-//            if (ff) {
-//                Point point = board.findPoint(ConstanNum.HUMEN, ConstanNum.searchDeep);
-//                board.put(point.x, point.y, ConstanNum.HUMEN);
-//                chessArray[point.x][point.y] = ConstanNum.HUMEN;
-//                setImage(ConstanNum.HUMEN, point.x, point.y);
-//                boolean end = isEnd(point.y, point.x);
-//                if (end){
-//                    System.out.println("-----------success");
-//                }
-//            }else {
-//                Point point = board.findPoint(ConstanNum.COM, ConstanNum.searchDeep);
-//                board.put(point.x, point.y, ConstanNum.COM);
-//                chessArray[point.x][point.y] = ConstanNum.COM;
-//                setImage(ConstanNum.COM, point.x, point.y);
-//                boolean end = isEnd( point.y,point.x);
-//                if (end) {
-//                    System.out.println("-----------success");
-//                }
-//            }
-//            ff = !ff;
-//            xx = 0;
-//        }
-    }
-
     private void init() {
-
         group.clearChildren();
         board = new Board();
         board.init();
-      /*  int randomY=6;
-        int randomX=6;*/
+        chessArray = new int[GRID_NUMBER][GRID_NUMBER];
         if (ConstanNum.userXianshou == 1)return;
         int randomY=getRandom();
         int randomX=getRandom();
-
-        chessArray = new int[GRID_NUMBER][GRID_NUMBER];
         board.put(randomX, randomY, ConstanNum.COM);
         chessArray[randomX][randomY] = ConstanNum.COM;
         setImage(ConstanNum.comColor,randomX,randomY);
     }
 
-
-    float size = GRID_NUMBER - 2;
-    boolean isFinished = false;
-    ArrayList<Point> success  = new ArrayList<>();
     public  boolean isEnd(int x,int y){
         success.clear();
         //记数   Point 记录 x y    行列
-
         //<-------------
         int cnt=1;
         int col=x;
@@ -209,9 +162,7 @@ public class WzqGroup extends Group {
             isFinished=true;
             return true;
         }
-
         success.clear();
-
         //左上
         col=x;
         row=y;
@@ -251,7 +202,6 @@ public class WzqGroup extends Group {
         image.setSize(xx,xx);
         image.setPosition(x*xx+ 50,y*xx+ 50, Align.center);
     }
-
 
     public void start() {
         init();

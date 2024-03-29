@@ -31,8 +31,7 @@ public class Point implements Comparable {
                     return step - xx.step;
                 else
                     return xx.score - score; // 否则 选取当前分最高的（直接评分)
-            }
-            else {
+            } else {
                 if (step != xx.step)
                     return xx.step - step;
                 else

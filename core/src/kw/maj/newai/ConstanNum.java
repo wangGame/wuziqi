@@ -11,9 +11,6 @@ public class ConstanNum {
     public static int userColor = HUMEN;
 
     public static int userXianshou;
-
-
-    public static final int EQUE=100;
     //棋盘格数
     public static int GRID_NUMBER = 17;
     //模型打分
@@ -32,16 +29,6 @@ public class ConstanNum {
     BLOCKED_TWO=10,
     BLOCKED_THREE=100,
     BLOCKED_FOUR=10000;
-    // 总分数
-    enum  score  {
-        TWO,// 活二
-        TWO_THREE, // 双三
-        BLOCK_FOUR, // 冲四
-        FOUR_THREE, // 冲四活三
-        FOUR, // 活四
-        FIVE;// 连五
-}
-
 
     //ai设置
     public static final int searchDeep=4;  //搜索深度

@@ -28,8 +28,6 @@ public class GameScreen extends BaseScreen {
         bg.setScale(max);
         bg.setPosition(Constant.GAMEWIDTH/2.0f,Constant.GAMEHIGHT/2.0f,Align.center);
 
-
-
         WzqGroup group = new WzqGroup();
         addActor(group);
         group.setPosition(Constant.WIDTH/2,Constant.HIGHT/2, Align.center);

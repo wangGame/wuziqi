@@ -11,8 +11,8 @@ import kw.maj.screen.LoadingScreen;
  * 使用的画笔
  */
 @GameInfo(width = 720,height = 1280,batch = Constant.COUPOLYGONBATCH)
-public class WuziQI extends BaseGame {
-    public WuziQI(){
+public class WuziQIGame extends BaseGame {
+    public WuziQIGame(){
         Constant.viewColor = Color.WHITE;
     }
 
