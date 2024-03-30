@@ -1,4 +1,4 @@
-package kw.maj.newai;
+package kw.wzq.newai;
 
 public class ConstanNum {
     public static String baseUrl=/*"192.168.0.102:8080";*/"39.106.48.125:8080";

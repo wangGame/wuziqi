@@ -1,4 +1,4 @@
-package kw.maj.newai;
+package kw.wzq.newai;
 
 import java.util.ArrayList;
 

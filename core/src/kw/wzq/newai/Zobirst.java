@@ -1,4 +1,4 @@
-package kw.maj.newai;
+package kw.wzq.newai;
 
 public class Zobirst {
     //table[2][]
@@ -23,6 +23,7 @@ public class Zobirst {
         return code;
     }
 
+    //计算code没有问题
     public int go(int x,int y,int role){
         int index=len*x+y;
         code^=(role==ConstanNum.COM ? com[index]:hum[index]);

@@ -1,4 +1,4 @@
-package kw.maj.newai;
+package kw.wzq.newai;
 
 
 import java.util.ArrayList;
@@ -378,9 +378,7 @@ public class Board {
                     if(onlyThrees&&maxScore<ConstanNum.THREE){
                         continue;
                     }
-                    if (i>16||j>16){
-                        System.out.println("-------------------------");
-                    }
+
                     Point tmpP=new Point(i,j,role);
                     tmpP.setScoreHum(scoreHum);
                     tmpP.setScoreCom(scoreCom);

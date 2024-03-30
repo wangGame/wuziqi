@@ -1,6 +1,6 @@
-package kw.maj.group;
+package kw.wzq.group;
 
-import static kw.maj.newai.ConstanNum.GRID_NUMBER;
+import static kw.wzq.newai.ConstanNum.GRID_NUMBER;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -9,14 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.kw.gdx.asset.Asset;
 
 import java.util.ArrayList;
 
-import kw.maj.newai.Board;
-import kw.maj.newai.ConstanNum;
-import kw.maj.newai.Point;
+import kw.wzq.newai.Board;
+import kw.wzq.newai.ConstanNum;
+import kw.wzq.newai.Point;
 
 public class WzqGroup extends Group {
     private Group group;

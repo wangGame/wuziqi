@@ -1,4 +1,4 @@
-package kw.maj.screen;
+package kw.wzq.screen;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -10,8 +10,8 @@ import com.kw.gdx.constant.Constant;
 import com.kw.gdx.listener.OrdinaryButtonListener;
 import com.kw.gdx.screen.BaseScreen;
 
-import kw.maj.group.WzqGroup;
-import kw.maj.newai.ConstanNum;
+import kw.wzq.group.WzqGroup;
+import kw.wzq.newai.ConstanNum;
 
 public class GameScreen extends BaseScreen {
     public GameScreen(BaseGame game) {
