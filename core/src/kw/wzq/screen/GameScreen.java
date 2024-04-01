@@ -14,6 +14,7 @@ import kw.wzq.group.WzqGroup;
 import kw.wzq.newai.ConstanNum;
 
 public class GameScreen extends BaseScreen {
+    private WzqGroup group;
     public GameScreen(BaseGame game) {
         super(game);
     }
@@ -28,7 +29,7 @@ public class GameScreen extends BaseScreen {
         bg.setScale(max);
         bg.setPosition(Constant.GAMEWIDTH/2.0f,Constant.GAMEHIGHT/2.0f,Align.center);
 
-        WzqGroup group = new WzqGroup();
+        group = new WzqGroup();
         addActor(group);
         group.setPosition(Constant.WIDTH/2,Constant.HIGHT/2, Align.center);
 
@@ -93,7 +94,13 @@ public class GameScreen extends BaseScreen {
             pack();
             setPosition(Constant.GAMEWIDTH/2,100,Align.center);
         }});
+    }
 
+    @Override
+    public void render(float delta) {
+        super.render(delta);
+        if (group.isFinished()){
 
+        }
     }
 }

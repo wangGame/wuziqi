@@ -2,34 +2,64 @@ package kw.wzq.ai;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
-import kw.wzq.newai.Board;
-
-public class NewAi {
-    private static final char EMPTY_CHAR = '-';
-    private char[][] grid;
-    private long[][] hashTable;
-    private long hashValue;
+public class Board {
+    //大小15x15
+    public int N_ROW = 15;
+    public int N_COL = 15;
+    private char EMPTY_CHAR = '-';
+    private int AVAILABLE_DISTANCE = 2;
     private Random RANDOM;
+    private List<Pos> ALL_POS;
+    private List<List<Pos>> BANDS;
+    private long[][] RANDOM_TABLE;
+    private Map<Player, Set<Set<Pos>>> GROUPS_CACHE;
+    private int[][] SCORE_TABLE;
     private GameStatus status;
+    private char[][] grid;
 
-    public NewAi(){
-        initRandom();
-        init();
-        initHash();
+    private long hash;
+    private Player player1;
+    private Player player2;
+
+    public Board(Player player1,Player player2){
+        this.SCORE_TABLE = new int[][]{
+                {1, 1, 1},
+                {5, 10, 20},
+                {10, 500, 1000},
+                {25, 5000, 10000},
+                {1000000, 1000000, 1000000}
+        };
+        this.player1 = player1;
+        this.player2 = player2;
+        this.status = new GameStatus(Status.ONGOING,null,Collections.emptySet());
+        this.RANDOM_TABLE = buildRandomTable();
+        this.hash = buildHash();
+        this.ALL_POS = buildAllPos();
     }
 
-    public NewAi(NewAi ai){
-        this.grid = copyOf(ai.grid);
-        this.status = new GameStatus(
-                ai.status.getStatus(),
-                ai.status.getWinner(),
-                ai.status.getWinningSet());
-        this.hashValue = ai.hashValue;
+    public Board(Board other){
+        this.player1 = other.player1;
+        this.player2 = other.player2;
+        this.grid =  copyOf(other.grid);
+        this.status = new GameStatus(other.status.getStatus(),other.status.getWinner(),this.status.getWinningSet());
+        this.hash = other.hash;
+    }
+
+    private long buildHash() {
+        long hash = RANDOM.nextLong();
+        for (long[] longs : RANDOM_TABLE) {
+            for (long aLong : longs) {
+                hash ^= aLong;
+            }
+        }
+        return hash;
     }
 
     private void initRandom() {
@@ -45,8 +75,8 @@ public class NewAi {
         return target;
     }
 
-    private void initHash() {
-        hashTable = new long[Constant.N_ROW * Constant.N_COL][3];
+    private long[][] buildRandomTable() {
+        long[][] hashTable = new long[Constant.N_ROW * Constant.N_COL][3];
         /**
          * 三种状态  黑白无
          */
@@ -55,13 +85,7 @@ public class NewAi {
                 hashTable[i][i1] = RANDOM.nextLong();
             }
         }
-
-        hashValue = RANDOM.nextLong();
-
-        for (int i = 0; i < Constant.N_COL * Constant.N_ROW; i++) {
-            //啥也没有
-            hashValue ^= hashTable[i][2];
-        }
+        return hashTable;
     }
 
     public void init(){
@@ -101,6 +125,21 @@ public class NewAi {
         }
     }
 
+
+    private List<Pos> buildAllPos() {
+        List<Pos> list = new ArrayList<>();
+        for (int i = 0; i < N_ROW; i++) {
+            for (int i1 = 0; i1 < N_COL; i1++) {
+                list.add(new Pos(i,i1));
+            }
+        }
+        return list;
+    }
+
+    public List<List<Pos>> buildBands(){
+
+    }
+
     public ComputerPlayer getEnemy(ComputerPlayer player) {
         return null;
     }
@@ -115,5 +154,11 @@ public class NewAi {
 
     public int evaluate(ComputerPlayer player, int i) {
         return 0;
+    }
+
+    private int countOfOpen(Set<Pos> group){
+        List<Pos> pos = new ArrayList<>(group);
+        pos.sort(Comparator.comparing(Pos::getIndex));
+        Pos min = pos.get(0);
     }
 }

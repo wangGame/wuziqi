@@ -1,10 +1,8 @@
 package kw.wzq.ai;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class ComputerPlayer {
     public char marker;
@@ -40,7 +38,7 @@ public class ComputerPlayer {
         ));
     }
 
-    protected Move decide(NewAi board) {
+    protected Move decide(Board board) {
         if (this.step() <= 0 && board.getEnemy(this).step() <= 0) {
             return first();
         } else {
@@ -60,7 +58,7 @@ public class ComputerPlayer {
         return this.path.get(this.path.size() - 1);
     }
 
-    public Pos next(NewAi board) {
+    public Pos next(Board board) {
         long start = System.nanoTime();
         Move move = decide(board);
         while (!board.mark(move.getNext(), this)) {
@@ -72,7 +70,7 @@ public class ComputerPlayer {
         return move.getNext();
     }
 
-    private int alphaBeta(NewAi board, int depth, int alpha, int beta, ComputerPlayer player) {
+    private int alphaBeta(Board board, int depth, int alpha, int beta, ComputerPlayer player) {
         if (board.status().isGameOver() || depth <= 0) {
             return board.evaluate(this, this.depth - depth);
         }
@@ -81,7 +79,7 @@ public class ComputerPlayer {
         int v = (this == player) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         List<Pos> childPos = sortChildPos(board);
         for (Pos pos : childPos) {
-            NewAi bd = new NewAi(board);
+            Board bd = new Board(board);
             bd.mark(pos, player);
             int w = alphaBeta(bd, depth - 1, alpha, beta, bd.getEnemy(player));
             if (this == player) {
@@ -112,7 +110,7 @@ public class ComputerPlayer {
         return v;
     }
 
-    private List<Pos> sortChildPos(NewAi board) {
+    private List<Pos> sortChildPos(Board board) {
 //        return board.getChildPos()
 //                .stream()
 //                .sorted(
