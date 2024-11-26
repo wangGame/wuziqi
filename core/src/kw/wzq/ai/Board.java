@@ -136,9 +136,7 @@ public class Board {
         return list;
     }
 
-    public List<List<Pos>> buildBands(){
 
-    }
 
     public ComputerPlayer getEnemy(ComputerPlayer player) {
         return null;
@@ -156,9 +154,5 @@ public class Board {
         return 0;
     }
 
-    private int countOfOpen(Set<Pos> group){
-        List<Pos> pos = new ArrayList<>(group);
-        pos.sort(Comparator.comparing(Pos::getIndex));
-        Pos min = pos.get(0);
-    }
+
 }
