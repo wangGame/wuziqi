@@ -3,6 +3,7 @@ package kw.wzq.newai;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -189,138 +190,225 @@ public class GameLogicBoard {
         caChe.put(zobirst.getCode(), new CacheObj(deep, leaf));
     }
 
-    //极大极小值搜索,递归搜索，返回下一层中局面最合适的点
+    // 优化点 1：alpha-beta 剪枝逻辑标准化
     private Leaf r(int deep, int alpha, int beta, int role, int step, ArrayList<Point> steps, int spread) {
         CacheObj cacheObj = caChe.get(zobirst.getCode());
-        if (cacheObj != null) {
-            // 如果缓存中的结果搜索深度不比当前小，则结果完全可用
-            if (cacheObj.deep >= deep) {
-                // 记得clone，因为这个分数会在搜索过程中被修改，会使缓存中的值不正确
-                return new Leaf(cacheObj.leaf.score, cacheObj.leaf.step + step, cacheObj.leaf.steps);
-            }
-            // 如果缓存的结果中搜索深度比当前小，那么任何一方出现双三及以上结果的情况下可用
-            // TODO: 只有这一个缓存策略是会导致开启缓存后会和以前的结果有一点点区别的，其他几种都是透明的缓存策略
-            else {
-                if (cacheObj.leaf.score >= ConstanNum.FOUR || cacheObj.leaf.score <= -ConstanNum.FOUR) {
-                    return cacheObj.leaf;
-                }
-            }
+        if (cacheObj != null && cacheObj.deep >= deep) {
+            return new Leaf(cacheObj.leaf.score, cacheObj.leaf.step + step, new ArrayList<>(cacheObj.leaf.steps));
         }
+
         int myScore = evaluateGame(role);
-        Leaf myLeaf = new Leaf(myScore, step, steps);
+        Leaf myLeaf = new Leaf(myScore, step, new ArrayList<>(steps));
         count++;
-        if (deep <= 0 || myScore >= ConstanNum.FIVE || myScore <= -ConstanNum.FIVE) {
-            return myLeaf;
-        }
-        Leaf best = new Leaf(minScore, step, steps);
-        //双方个下两个子之后，开启star spread 模式
+        if (deep <= 0 || Math.abs(myScore) >= ConstanNum.FIVE) return myLeaf;
+
+        Leaf best = new Leaf(minScore, step, new ArrayList<>(steps));
         ArrayList<Point> points = gen(role, count > 10 ? step > 1 : step > 3, step > 1);
-        if (points.isEmpty()) {
-            return myLeaf;
-        }
+        if (points.isEmpty()) return myLeaf;
+
+        // 优化点 2：排序提高剪枝效率
+        points.sort(Comparator.comparingInt(Point::getScore).reversed());
+
         for (Point p : points) {
             put(p.getX(), p.getY(), role);
-            int tmpdeep = deep - 1;
-            if (spread < ConstanNum.spreadLimit) {
-                if ((role == ConstanNum.COM && p.getScoreCom() >= ConstanNum.FIVE) || (role == ConstanNum.HUMEN && p.getScoreCom() >= ConstanNum.FIVE)) {
-                    tmpdeep += 2;
-                    spread++;
-                }
+            int tmpDeep = deep - 1;
+            if (spread < ConstanNum.spreadLimit &&
+                    ((role == ConstanNum.COM && p.getScoreCom() >= ConstanNum.FIVE) ||
+                            (role == ConstanNum.HUMEN && p.getScoreHum() >= ConstanNum.FIVE))) {
+                tmpDeep += 2;
+                spread++;
             }
-            ArrayList<Point> tmpSteps = (ArrayList<Point>) steps.clone();
+            ArrayList<Point> tmpSteps = new ArrayList<>(steps);
             tmpSteps.add(p);
-            int nextrole;
-            if (role == ConstanNum.COM) {
-                nextrole = ConstanNum.HUMEN;
-            } else {
-                nextrole = ConstanNum.COM;
-            }
-            Leaf v = r(tmpdeep, -beta, -alpha, nextrole, step + 1, tmpSteps, spread);
+            int nextRole = (role == ConstanNum.COM ? ConstanNum.HUMEN : ConstanNum.COM);
+
+            Leaf v = r(tmpDeep, -beta, -alpha, nextRole, step + 1, tmpSteps, spread);
             v.score *= -1;
             remove(p.getX(), p.getY());
 
-            //开始减枝
-
-            // 注意，这里决定了剪枝时使用的值必须比MAX小
             if (v.score > best.score) {
                 best = v;
             }
-            alpha = Math.max(best.score, alpha);
-            //AB 剪枝
-            // 这里不要直接返回原来的值，因为这样上一层会以为就是这个分，实际上这个节点直接剪掉就好了，根本不用考虑，也就是直接给一个很大的值让他被减掉
-            // 这样会导致一些差不多的节点都被剪掉，但是没关系，不影响棋力
-            // 一定要注意，这里必须是 greatThan 即 明显大于，而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
-            //这里有问题
-            if (v.score > beta) {
-                v.score = maxScore - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
-                v.abcut = 1; // 剪枝标记
-                return v;
+            alpha = Math.max(alpha, best.score);
+
+            if (alpha >= beta) {
+                best.abcut = 1;
+                break; // 剪枝
             }
         }
         cache(deep, best);
         return best;
     }
+//    //极大极小值搜索,递归搜索，返回下一层中局面最合适的点
+//    private Leaf r(int deep, int alpha, int beta, int role, int step, ArrayList<Point> steps, int spread) {
+//        CacheObj cacheObj = caChe.get(zobirst.getCode());
+//        if (cacheObj != null) {
+//            // 如果缓存中的结果搜索深度不比当前小，则结果完全可用
+//            if (cacheObj.deep >= deep) {
+//                // 记得clone，因为这个分数会在搜索过程中被修改，会使缓存中的值不正确
+//                return new Leaf(cacheObj.leaf.score, cacheObj.leaf.step + step, cacheObj.leaf.steps);
+//            }
+//            // 如果缓存的结果中搜索深度比当前小，那么任何一方出现双三及以上结果的情况下可用
+//            // TODO: 只有这一个缓存策略是会导致开启缓存后会和以前的结果有一点点区别的，其他几种都是透明的缓存策略
+//            else {
+//                if (cacheObj.leaf.score >= ConstanNum.FOUR || cacheObj.leaf.score <= -ConstanNum.FOUR) {
+//                    return cacheObj.leaf;
+//                }
+//            }
+//        }
+//        int myScore = evaluateGame(role);
+//        Leaf myLeaf = new Leaf(myScore, step, steps);
+//        count++;
+//        if (deep <= 0 || myScore >= ConstanNum.FIVE || myScore <= -ConstanNum.FIVE) {
+//            return myLeaf;
+//        }
+//        Leaf best = new Leaf(minScore, step, steps);
+//        //双方个下两个子之后，开启star spread 模式
+//        ArrayList<Point> points = gen(role, count > 10 ? step > 1 : step > 3, step > 1);
+//        if (points.isEmpty()) {
+//            return myLeaf;
+//        }
+//        for (Point p : points) {
+//            put(p.getX(), p.getY(), role);
+//            int tmpdeep = deep - 1;
+//            if (spread < ConstanNum.spreadLimit) {
+//                if ((role == ConstanNum.COM && p.getScoreCom() >= ConstanNum.FIVE) || (role == ConstanNum.HUMEN && p.getScoreCom() >= ConstanNum.FIVE)) {
+//                    tmpdeep += 2;
+//                    spread++;
+//                }
+//            }
+//            ArrayList<Point> tmpSteps = (ArrayList<Point>) steps.clone();
+//            tmpSteps.add(p);
+//            int nextrole;
+//            if (role == ConstanNum.COM) {
+//                nextrole = ConstanNum.HUMEN;
+//            } else {
+//                nextrole = ConstanNum.COM;
+//            }
+//            Leaf v = r(tmpdeep, -beta, -alpha, nextrole, step + 1, tmpSteps, spread);
+//            v.score *= -1;
+//            remove(p.getX(), p.getY());
+//
+//            //开始减枝
+//
+//            // 注意，这里决定了剪枝时使用的值必须比MAX小
+//            if (v.score > best.score) {
+//                best = v;
+//            }
+//            alpha = Math.max(best.score, alpha);
+//            //AB 剪枝
+//            // 这里不要直接返回原来的值，因为这样上一层会以为就是这个分，实际上这个节点直接剪掉就好了，根本不用考虑，也就是直接给一个很大的值让他被减掉
+//            // 这样会导致一些差不多的节点都被剪掉，但是没关系，不影响棋力
+//            // 一定要注意，这里必须是 greatThan 即 明显大于，而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
+//            //这里有问题
+//            if (v.score > beta) {
+//                v.score = maxScore - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
+//                v.abcut = 1; // 剪枝标记
+//                return v;
+//            }
+//        }
+//        cache(deep, best);
+//        return best;
+//    }
 
-    /*思路：
-     * 每次开始迭代前，先生成一组候选列表，然后在迭代加深的过程中不断更新这个列表中的分数
-     * 这样迭代的深度越大，则分数越精确，并且，任何时候达到时间限制而中断迭代的时候，
-     * 能保证这个列表中的分数都是可靠的
-     */
-    //在这里面给condidates数组中的Point属性添加了其他值
+//    /*思路：
+//     * 每次开始迭代前，先生成一组候选列表，然后在迭代加深的过程中不断更新这个列表中的分数
+//     * 这样迭代的深度越大，则分数越精确，并且，任何时候达到时间限制而中断迭代的时候，
+//     * 能保证这个列表中的分数都是可靠的
+//     */
+//    //在这里面给condidates数组中的Point属性添加了其他值
+//    private int minMaxSearch(ArrayList<Point> candidates, int role, int deep, int alpha, int beta) {
+//        count = 0;
+//        currentSteps.clear();
+//        //对每一个节点进行迭代查询
+//        for (Point p : candidates) {
+//            put(p.getX(), p.getY(), role);
+//            ArrayList<Point> steps = new ArrayList<>();
+//            steps.add(p);
+//            int nextrole;
+//            if (role == ConstanNum.COM) {
+//                nextrole = ConstanNum.HUMEN;
+//            } else {
+//                nextrole = ConstanNum.COM;
+//            }
+//            //搜索对手的分数，
+//            Leaf v = r(deep - 1, -beta, -alpha, nextrole, 1, (ArrayList<Point>) steps.clone(), 0);
+//            v.score *= -1;
+//            alpha = Math.max(alpha, v.score);
+//            remove(p.getX(), p.getY());
+//            p.setScore(v.score);
+//            p.setStep(v.step);
+//            p.setSteps(v.steps);
+//            //超时判定
+//            if (new Date().getTime() - startDate.getTime() > ConstanNum.timeLimit * 1000) {
+//                break;
+//            }
+//        }
+//        return alpha;
+//    }
+
+    // 优化点 3：minMaxSearch 中增加排序，提高剪枝效率
     private int minMaxSearch(ArrayList<Point> candidates, int role, int deep, int alpha, int beta) {
         count = 0;
         currentSteps.clear();
-        //对每一个节点进行迭代查询
         for (Point p : candidates) {
             put(p.getX(), p.getY(), role);
             ArrayList<Point> steps = new ArrayList<>();
             steps.add(p);
-            int nextrole;
-            if (role == ConstanNum.COM) {
-                nextrole = ConstanNum.HUMEN;
-            } else {
-                nextrole = ConstanNum.COM;
-            }
-            //搜索对手的分数，
-            Leaf v = r(deep - 1, -beta, -alpha, nextrole, 1, (ArrayList<Point>) steps.clone(), 0);
+            int nextRole = (role == ConstanNum.COM ? ConstanNum.HUMEN : ConstanNum.COM);
+            Leaf v = r(deep - 1, -beta, -alpha, nextRole, 1, steps, 0);
             v.score *= -1;
             alpha = Math.max(alpha, v.score);
             remove(p.getX(), p.getY());
             p.setScore(v.score);
             p.setStep(v.step);
             p.setSteps(v.steps);
-            //超时判定
-            if (new Date().getTime() - startDate.getTime() > ConstanNum.timeLimit * 1000) {
+            if (System.currentTimeMillis() - startDate.getTime() > ConstanNum.timeLimit * 1000) {
                 break;
             }
         }
         return alpha;
     }
 
-    /**
-     *  所谓迭代加深，就是从2层开始，逐步增加搜索深度，直到找到胜利走法或者达到深度限制为止。
-     * 比如我们搜索6层深度，那么我们先尝试2层，如果没有找到能赢的走法，再尝试4层，最后尝试6层。
-     * 我们只尝试偶数层。因为奇数层其实是电脑比玩家多走了一步，忽视了玩家的防守，并不会额外找到更好的解法。
-    */
+    // 优化点 4：findPoint 中排序确保选择最佳点
     public Point findPoint(int role, int deep) {
         startDate = new Date();
-        //通过gen找到候选点
         ArrayList<Point> candidate = gen(role, false, false);
-        // 每次开始迭代的时候清空缓存。这里缓存的主要目的是在每一次的时候加快搜索，而不是长期存储。
-        // 事实证明这样的清空方式对搜索速度的影响非常小（小于10%)
         caChe.clear();
-        int bestScore;
-        //在最大最小值搜索中，会改变candidate中的值的大小。
+        int bestScore = Integer.MIN_VALUE;
         for (int i = 2; i <= deep; i += 2) {
             bestScore = minMaxSearch(candidate, role, i, minScore, maxScore);
-            //如果搜索到了最大值，则停止
-            if (bestScore >= ConstanNum.FIVE) {
-                break;
-            }
+            if (bestScore >= ConstanNum.FIVE) break;
         }
-        Collections.sort(candidate);
-        return candidate.get(0);
+        candidate.sort(Comparator.comparingInt(Point::getScore).reversed());
+        return candidate.isEmpty() ? new Point(gridSize / 2, gridSize / 2, role) : candidate.get(0);
     }
+
+
+//    /**
+//     *  所谓迭代加深，就是从2层开始，逐步增加搜索深度，直到找到胜利走法或者达到深度限制为止。
+//     * 比如我们搜索6层深度，那么我们先尝试2层，如果没有找到能赢的走法，再尝试4层，最后尝试6层。
+//     * 我们只尝试偶数层。因为奇数层其实是电脑比玩家多走了一步，忽视了玩家的防守，并不会额外找到更好的解法。
+//    */
+//    public Point findPoint(int role, int deep) {
+//        startDate = new Date();
+//        //通过gen找到候选点
+//        ArrayList<Point> candidate = gen(role, false, false);
+//        // 每次开始迭代的时候清空缓存。这里缓存的主要目的是在每一次的时候加快搜索，而不是长期存储。
+//        // 事实证明这样的清空方式对搜索速度的影响非常小（小于10%)
+//        caChe.clear();
+//        int bestScore;
+//        //在最大最小值搜索中，会改变candidate中的值的大小。
+//        for (int i = 2; i <= deep; i += 2) {
+//            bestScore = minMaxSearch(candidate, role, i, minScore, maxScore);
+//            //如果搜索到了最大值，则停止
+//            if (bestScore >= ConstanNum.FIVE) {
+//                break;
+//            }
+//        }
+//        Collections.sort(candidate);
+//        return candidate.get(0);
+//    }
 
     /**
      * 启发函数
