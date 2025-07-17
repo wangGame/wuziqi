@@ -27,14 +27,7 @@ public class LoadingScreen extends BaseScreen {
                 setScreen(GameScreen.class);
             }
         });
-        Image multMode = new Image(Asset.getAsset().getTexture("white_chess.png"));
-        addActor(new Table(){{
-            add(singleMode);
-            row();
-            add(multMode);
-            pack();
-            setPosition(Constant.GAMEWIDTH/2,Constant.GAMEHIGHT/2,Align.center);
-        }});
-
+        addActor(singleMode);
+        singleMode.setPosition(Constant.GAMEWIDTH/2f,Constant.GAMEHIGHT/2f,Align.center);
     }
 }

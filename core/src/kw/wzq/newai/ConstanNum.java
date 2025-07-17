@@ -1,16 +1,15 @@
 package kw.wzq.newai;
 
 public class ConstanNum {
-    public static String baseUrl=/*"192.168.0.102:8080";*/"39.106.48.125:8080";
-
     //棋子
     public static final int EMPTY=0;
-    public static final int  HUMEN=2,COM=1;
+    public static final int  HUMEN=2;
+    public static final int COM=1;
 
     public static int comColor = COM;
     public static int userColor = HUMEN;
-
     public static int userXianshou;
+
     //棋盘格数
     public static int GRID_NUMBER = 14;
     //模型打分
@@ -31,7 +30,6 @@ public class ConstanNum {
     BLOCKED_FOUR=10000;
 
     //ai设置
-    public static final int searchDeep=4;  //搜索深度
     public static final int countLimit=20; //gen函数返回的节点数量上限，超过之后将会按照分数进行截断
     public static final int timeLimit=100; // 时间限制，秒
     // 下面几个设置都是用来提升搜索速度的
