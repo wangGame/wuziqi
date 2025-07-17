@@ -70,14 +70,15 @@ public class WzqGroup extends Group {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                aiPoint = board.findPoint(ConstanNum.COM, 9);
-                addAction(Actions.delay(2,Actions.run(()->{
+                aiPoint = board.findPoint(ConstanNum.COM, 12);
+                addAction(Actions.delay(0,Actions.run(()->{
                     board.put(aiPoint.getX(), aiPoint.getY(), ConstanNum.COM);
                     board.printScore();
                     chessArray[aiPoint.getX()][aiPoint.getY()] = ConstanNum.COM;
                     setImage(ConstanNum.comColor, aiPoint.getX(), aiPoint.getY());
                     boolean end = isEnd(aiPoint.getY(), aiPoint.getX());
                     if (end){
+                        System.out.println("computer success!");
                         touchGroup.setTouchable(Touchable.disabled);
                         return;
                     }

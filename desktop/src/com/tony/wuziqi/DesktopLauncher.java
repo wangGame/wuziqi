@@ -11,8 +11,8 @@ public class DesktopLauncher {
         config.title="wuziqi";
         config.x = 1000;
         config.y = 0;
-        config.width = (int) (360);
-        config.height = (int) (640);
+        config.width = (int) (360*1.5f);
+        config.height = (int) (640*1.5f);
         new LwjglApplication(new WuziQIGame(),config);
 
     }
