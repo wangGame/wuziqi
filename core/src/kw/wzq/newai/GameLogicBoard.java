@@ -124,6 +124,28 @@ public class GameLogicBoard {
         }
     }
 
+    public void printScore() {
+        System.out.println("");
+        System.out.println("==========comscore============");
+        for (int[] ints : comScore) {
+            for (int anInt : ints) {
+                System.out.print(anInt+" ");
+            }
+            System.out.println();
+        }
+        System.out.println("==========comscore============");
+        System.out.println("");
+        System.out.println("==========humScore============");
+        for (int[] ints : humScore) {
+            for (int anInt : ints) {
+                System.out.print(anInt+" ");
+            }
+            System.out.println();
+        }
+        System.out.println("==========humScore============");
+
+    }
+
     //score为当前局面的评分，step为steps的长度
     class Leaf {
         int score;

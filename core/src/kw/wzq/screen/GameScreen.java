@@ -7,10 +7,12 @@ import com.kw.gdx.asset.Asset;
 import com.kw.gdx.constant.Constant;
 import com.kw.gdx.screen.BaseScreen;
 
+import kw.wzq.group.ShowScoreGroup;
 import kw.wzq.group.WzqGroup;
 
 public class GameScreen extends BaseScreen {
     private WzqGroup wzqGroup;
+    private ShowScoreGroup showScoreGroup;
     public GameScreen(BaseGame game) {
         super(game);
     }

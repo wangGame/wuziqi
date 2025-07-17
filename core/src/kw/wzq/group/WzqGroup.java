@@ -42,6 +42,9 @@ public class WzqGroup extends Group {
                 int yy = (int) ((y-25) / 46);
                 chessArray[xx][yy] = ConstanNum.HUMEN;
                 board.put(xx, yy, ConstanNum.HUMEN);
+
+                board.printScore();
+
                 setImage(ConstanNum.userColor,xx,yy);
                 boolean end = isEnd(yy, xx);
                 if (end){
@@ -57,6 +60,7 @@ public class WzqGroup extends Group {
     public void compute(){
         Point point = board.findPoint(ConstanNum.COM, 9);
         board.put(point.getX(), point.getY(), ConstanNum.COM);
+        board.printScore();
         chessArray[point.getX()][point.getY()] = ConstanNum.COM;
         setImage(ConstanNum.comColor, point.getX(), point.getY());
         boolean end = isEnd(point.getY(), point.getX());
