@@ -43,7 +43,14 @@ public class GameLogicBoard {
         scoreCache = new int[3][4][gridSize][gridSize];
     }
 
-    //下子
+    /**
+     * 下子之后，更新分数。对方下子后，这个地方为0
+     *
+     *
+     * @param x
+     * @param y
+     * @param role
+     */
     public void put(int x, int y, int role) {
         //放下棋子
         gridBoard[x][y] = role;
@@ -66,9 +73,13 @@ public class GameLogicBoard {
         count--;
     }
 
-    //只更新一个点附近的分数
+    /**
+     * 只更新一个点附近的分数
+     *
+     * @param px
+     * @param py
+     */
     private void updateScore(int px, int py) {
-        //4个元素的半径
         int radius = 4;
         for (int i = -radius; i <= radius; i++) {
             int y = py + i;
@@ -286,9 +297,11 @@ public class GameLogicBoard {
         return alpha;
     }
 
-    /* 所谓迭代加深，就是从2层开始，逐步增加搜索深度，直到找到胜利走法或者达到深度限制为止。
-    比如我们搜索6层深度，那么我们先尝试2层，如果没有找到能赢的走法，再尝试4层，最后尝试6层。
-    我们只尝试偶数层。因为奇数层其实是电脑比玩家多走了一步，忽视了玩家的防守，并不会额外找到更好的解法。*/
+    /**
+     *  所谓迭代加深，就是从2层开始，逐步增加搜索深度，直到找到胜利走法或者达到深度限制为止。
+     * 比如我们搜索6层深度，那么我们先尝试2层，如果没有找到能赢的走法，再尝试4层，最后尝试6层。
+     * 我们只尝试偶数层。因为奇数层其实是电脑比玩家多走了一步，忽视了玩家的防守，并不会额外找到更好的解法。
+    */
     public Point findPoint(int role, int deep) {
         startDate = new Date();
         //通过gen找到候选点
@@ -309,7 +322,8 @@ public class GameLogicBoard {
         return candidate.get(0);
     }
 
-    /*启发函数
+    /**
+     * 启发函数
      * 变量starBread的用途是用来进行米子计算
      * 所谓米子计算，只是，如果第一步尝试了一个位置A，那么接下来尝试的位置有两种情况：
      * 1: 大于等于活三的位置
@@ -580,14 +594,30 @@ public class GameLogicBoard {
         return score;
     }
 
-    //单个位置评分函数
-    //根据这个位置是否能成五，活四，活三等来进行打分。
-    //为了快速计算，之后更新的时候只用计算dir方向的值，所以增加了dir变量
+
+    /**
+     * 单个位置评分函数
+     * 根据这个位置是否能成五，活四，活三等来进行打分。
+     * 为了快速计算，之后更新的时候只用计算dir方向的值，所以增加了dir变量
+     *
+     * - 上下
+     * - 左右
+     * - 斜着
+     *
+     * @param px
+     * @param py
+     * @param role
+     * @param dir
+     * @return
+     */
     private int evaluatePoint(int px, int py, int role, int dir) {
         //一个方向上的连续棋子数；另一个方向的；
         // block为遮挡大小，两边没遮挡则为0，全遮挡为2
         //empty为中间空白的位置，-1则没有空白
-        int count, block, secondCount, empty;
+        int count;
+        int block;
+        int secondCount;
+        int emptyIndex; //当前位置肯定为当前的棋子 ，让倒第几个出现空位置   并且后面还有一个自己的棋子  xx_xx
         //棋盘条数
         int len = ConstanNum.GRID_NUMBER - 2;
         //最终分数
@@ -598,8 +628,8 @@ public class GameLogicBoard {
             count = 1;
             block = 0;
             secondCount = 0;
-            empty = -1;
-            //向下查找
+            emptyIndex = -1;
+            //向上查找
             for (int i = py + 1; true; i++) {
                 //如果碰到边界则停止
                 if (i >= len) {
@@ -610,23 +640,23 @@ public class GameLogicBoard {
                 //如果当前点为空
                 if (t == ConstanNum.EMPTY) {
                     //如果是第一次遇到，且之后有当前角色棋子
-                    if (empty == -1 && i < len - 1 && gridBoard[px][i + 1] == role) {
+                    if (emptyIndex == -1 && i < len - 1 && gridBoard[px][i + 1] == role) {
                         //使用empty记录空白节点的位置
-                        empty = count;
+                        //当前位置开始向上空几个
+                        emptyIndex = count;
                         continue;
                     } else {
                         break;
                     }
-                }
-                //如果当前位置为当前角色棋子
-                if (t == role) {
+                }else if (t == role) {
+                    //如果当前位置为当前角色棋子
                     count++;
                 } else {
                     block++;
                     break;
                 }
             }
-            //向上探索
+            //向下探索
             for (int i = py - 1; true; i--) {
                 //如果碰到边界
                 if (i < 0) {
@@ -637,8 +667,8 @@ public class GameLogicBoard {
                 if (t == ConstanNum.EMPTY) {
                     //empty为0，因为之后每增加一个secondcount，empty都+1，用来记录空位位置
                     //且empty必须为-1，因为当前评分规则只记录一个空位，如果不为-1，则说明另一个方向有空位了
-                    if (empty == -1 && i > 0 && gridBoard[px][i - 1] == role) {
-                        empty = 0;
+                    if (emptyIndex == -1 && i > 0 && gridBoard[px][i - 1] == role) {
+                        emptyIndex = 0;
                         continue;
                     } else {
                         break;
@@ -646,8 +676,8 @@ public class GameLogicBoard {
                 }
                 if (t == role) {
                     secondCount++;
-                    if (empty != -1) {
-                        empty++;
+                    if (emptyIndex != -1) {
+                        emptyIndex++;
                     }
                 } else {
                     block++;
@@ -656,7 +686,7 @@ public class GameLogicBoard {
             }
             count += secondCount;
             //缓存分数，其中0位方向
-            scoreCache[role][0][px][py] = countToScore(count, block, empty);
+            scoreCache[role][0][px][py] = countToScore(count, block, emptyIndex);
         }
         scoreResult += scoreCache[role][0][px][py];
         //先右后左
@@ -665,7 +695,7 @@ public class GameLogicBoard {
             count = 1;
             block = 0;
             secondCount = 0;
-            empty = -1;
+            emptyIndex = -1;
             //向右查找
             for (int i = px + 1; true; i++) {
                 //如果碰到边界则停止
@@ -677,9 +707,9 @@ public class GameLogicBoard {
                 //如果当前点为空
                 if (t == ConstanNum.EMPTY) {
                     //如果是第一次遇到，且之后有当前角色棋子
-                    if (empty == -1 && i < len - 1 && gridBoard[i + 1][py] == role) {
+                    if (emptyIndex == -1 && i < len - 1 && gridBoard[i + 1][py] == role) {
                         //使用empty记录空白节点的位置
-                        empty = count;
+                        emptyIndex = count;
                         continue;
                     } else {
                         break;
@@ -704,8 +734,8 @@ public class GameLogicBoard {
                 if (t == ConstanNum.EMPTY) {
                     //empty为0，因为之后每增加一个secondcount，empty都+1，用来记录空位位置
                     //且empty必须为-1，因为当前评分规则只记录一个空位，如果不为-1，则说明另一个方向有空位了
-                    if (empty == -1 && i > 0 && gridBoard[i - 1][py] == role) {
-                        empty = 0;
+                    if (emptyIndex == -1 && i > 0 && gridBoard[i - 1][py] == role) {
+                        emptyIndex = 0;
                         continue;
                     } else {
                         break;
@@ -713,8 +743,8 @@ public class GameLogicBoard {
                 }
                 if (t == role) {
                     secondCount++;
-                    if (empty != -1) {
-                        empty++;
+                    if (emptyIndex != -1) {
+                        emptyIndex++;
                     }
                 } else {
                     block++;
@@ -723,7 +753,7 @@ public class GameLogicBoard {
             }
             count += secondCount;
             //缓存分数，其中0位方向
-            scoreCache[role][1][px][py] = countToScore(count, block, empty);
+            scoreCache[role][1][px][py] = countToScore(count, block, emptyIndex);
         }
         scoreResult += scoreCache[role][1][px][py];
         //先右xia再左shang
@@ -731,7 +761,7 @@ public class GameLogicBoard {
             count = 1;
             block = 0;
             secondCount = 0;
-            empty = -1;
+            emptyIndex = -1;
             //向右xia角查找
             for (int i = 1; true; i++) {
                 int x = px + i, y = py + i;
@@ -744,9 +774,9 @@ public class GameLogicBoard {
                 //如果当前点为空
                 if (t == ConstanNum.EMPTY) {
                     //如果是第一次遇到，且之后有当前角色棋子
-                    if (empty == -1 && x < len - 1 && y < len - 1 && gridBoard[x + 1][y + 1] == role) {
+                    if (emptyIndex == -1 && x < len - 1 && y < len - 1 && gridBoard[x + 1][y + 1] == role) {
                         //使用empty记录空白节点的位置
-                        empty = count;
+                        emptyIndex = count;
                         continue;
                     } else {
                         break;
@@ -772,8 +802,8 @@ public class GameLogicBoard {
                 if (t == ConstanNum.EMPTY) {
                     //empty为0，因为之后每增加一个secondcount，empty都+1，用来记录空位位置
                     //且empty必须为-1，因为当前评分规则只记录一个空位，如果不为-1，则说明另一个方向有空位了
-                    if (empty == -1 && x > 0 && y > 0 && gridBoard[x - 1][y - 1] == role) {
-                        empty = 0;
+                    if (emptyIndex == -1 && x > 0 && y > 0 && gridBoard[x - 1][y - 1] == role) {
+                        emptyIndex = 0;
                         continue;
                     } else {
                         break;
@@ -781,8 +811,8 @@ public class GameLogicBoard {
                 }
                 if (t == role) {
                     secondCount++;
-                    if (empty != -1) {
-                        empty++;
+                    if (emptyIndex != -1) {
+                        emptyIndex++;
                     }
                 } else {
                     block++;
@@ -791,7 +821,7 @@ public class GameLogicBoard {
             }
             count += secondCount;
             //缓存分数，其中0位方向
-            scoreCache[role][2][px][py] = countToScore(count, block, empty);
+            scoreCache[role][2][px][py] = countToScore(count, block, emptyIndex);
         }
         scoreResult += scoreCache[role][2][px][py];
         //先右shang再左xia
@@ -799,7 +829,7 @@ public class GameLogicBoard {
             count = 1;
             block = 0;
             secondCount = 0;
-            empty = -1;
+            emptyIndex = -1;
             //向you下查找
             for (int i = 1; true; i++) {
                 int x = px + i, y = py - i;
@@ -812,9 +842,9 @@ public class GameLogicBoard {
                 //如果当前点为空
                 if (t == ConstanNum.EMPTY) {
                     //如果是第一次遇到，且之后有当前角色棋子
-                    if (empty == -1 && x < len - 1 && y > 0 && gridBoard[x + 1][y - 1] == role) {
+                    if (emptyIndex == -1 && x < len - 1 && y > 0 && gridBoard[x + 1][y - 1] == role) {
                         //使用empty记录空白节点的位置
-                        empty = count;
+                        emptyIndex = count;
                         continue;
                     } else {
                         break;
@@ -840,8 +870,8 @@ public class GameLogicBoard {
                 if (t == ConstanNum.EMPTY) {
                     //empty为0，因为之后每增加一个secondcount，empty都+1，用来记录空位位置
                     //且empty必须为-1，因为当前评分规则只记录一个空位，如果不为-1，则说明另一个方向有空位了
-                    if (empty == -1 && y < len - 1 && x > 0 && gridBoard[x - 1][y + 1] == role) {
-                        empty = 0;
+                    if (emptyIndex == -1 && y < len - 1 && x > 0 && gridBoard[x - 1][y + 1] == role) {
+                        emptyIndex = 0;
                         continue;
                     } else {
                         break;
@@ -849,8 +879,8 @@ public class GameLogicBoard {
                 }
                 if (t == role) {
                     secondCount++;
-                    if (empty != -1) {
-                        empty++;
+                    if (emptyIndex != -1) {
+                        emptyIndex++;
                     }
                 } else {
                     block++;
@@ -859,7 +889,7 @@ public class GameLogicBoard {
             }
             count += secondCount;
             //缓存分数，其中0位方向
-            scoreCache[role][3][px][py] = countToScore(count, block, empty);
+            scoreCache[role][3][px][py] = countToScore(count, block, emptyIndex);
         }
         scoreResult += scoreCache[role][3][px][py];
         return scoreResult;

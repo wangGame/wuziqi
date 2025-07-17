@@ -1,14 +1,19 @@
 package kw.wzq.group;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.kw.gdx.asset.Asset;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import kw.wzq.newai.GameLogicBoard;
 import kw.wzq.newai.ConstanNum;
@@ -21,8 +26,9 @@ public class WzqGroup extends Group {
     private int tableSize;
     private boolean isFinished = false;
     private ArrayList<Point> success  = new ArrayList<>();
-
+    private ExecutorService executorService;
     public WzqGroup(){
+        executorService = Executors.newFixedThreadPool(1);
         setSize(700,700);
         Image image = new Image(Asset.getAsset().getTexture("board.jpg"));
         addActor(image);
@@ -57,18 +63,29 @@ public class WzqGroup extends Group {
         });
     }
 
+
+    private Point aiPoint;
     public void compute(){
-        Point point = board.findPoint(ConstanNum.COM, 9);
-        board.put(point.getX(), point.getY(), ConstanNum.COM);
-        board.printScore();
-        chessArray[point.getX()][point.getY()] = ConstanNum.COM;
-        setImage(ConstanNum.comColor, point.getX(), point.getY());
-        boolean end = isEnd(point.getY(), point.getX());
-        if (end){
-            touchGroup.setTouchable(Touchable.disabled);
-            return;
-        }
-        touchGroup.setTouchable(Touchable.enabled);
+
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                aiPoint = board.findPoint(ConstanNum.COM, 9);
+                addAction(Actions.delay(2,Actions.run(()->{
+                    board.put(aiPoint.getX(), aiPoint.getY(), ConstanNum.COM);
+                    board.printScore();
+                    chessArray[aiPoint.getX()][aiPoint.getY()] = ConstanNum.COM;
+                    setImage(ConstanNum.comColor, aiPoint.getX(), aiPoint.getY());
+                    boolean end = isEnd(aiPoint.getY(), aiPoint.getX());
+                    if (end){
+                        touchGroup.setTouchable(Touchable.disabled);
+                        return;
+                    }
+                    touchGroup.setTouchable(Touchable.enabled);
+                    aiPoint = null;
+                })));
+            }
+        });
     }
 
     private void init() {
