@@ -21,12 +21,13 @@ import kw.wzq.newai.Point;
 
 public class WzqGroup extends Group {
     private Group touchGroup;
-    private GameLogicBoard board;
+//    private GameLogicBoard board;
     private int chessArray [][];
     private int tableSize;
-    private boolean isFinished = false;
     private ArrayList<Point> success  = new ArrayList<>();
     private ExecutorService executorService;
+
+
     public WzqGroup(){
         executorService = Executors.newFixedThreadPool(1);
         setSize(700,700);
@@ -47,10 +48,6 @@ public class WzqGroup extends Group {
                 int xx = (int) ((x-25) / 46);
                 int yy = (int) ((y-25) / 46);
                 chessArray[xx][yy] = ConstanNum.HUMEN;
-                board.put(xx, yy, ConstanNum.HUMEN);
-
-                board.printScore();
-
                 setImage(ConstanNum.userColor,xx,yy);
                 boolean end = isEnd(yy, xx);
                 if (end){
@@ -70,10 +67,9 @@ public class WzqGroup extends Group {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                aiPoint = board.findPoint(ConstanNum.COM, 12);
+
                 addAction(Actions.delay(0,Actions.run(()->{
-                    board.put(aiPoint.getX(), aiPoint.getY(), ConstanNum.COM);
-                    board.printScore();
+
                     chessArray[aiPoint.getX()][aiPoint.getY()] = ConstanNum.COM;
                     setImage(ConstanNum.comColor, aiPoint.getX(), aiPoint.getY());
                     boolean end = isEnd(aiPoint.getY(), aiPoint.getX());
@@ -91,8 +87,6 @@ public class WzqGroup extends Group {
 
     private void init() {
         touchGroup.clearChildren();
-        board = new GameLogicBoard();
-        board.init();
         chessArray = new int[ConstanNum.GRID_NUMBER][ConstanNum.GRID_NUMBER];
     }
 
@@ -119,7 +113,6 @@ public class WzqGroup extends Group {
             success.add(new Point(col,row,1));
         }
         if(cnt>=5){
-            isFinished=true;
             return true;
         }
         success.clear();
@@ -149,7 +142,7 @@ public class WzqGroup extends Group {
             success.add(new Point(col,row));
         }
         if(cnt>=5){
-            isFinished=true;
+
             return true;
         }
 
@@ -171,7 +164,7 @@ public class WzqGroup extends Group {
             success.add(new Point(col,row));
         }
         if(cnt>=5){
-            isFinished=true;
+
             return true;
         }
         success.clear();
@@ -192,7 +185,7 @@ public class WzqGroup extends Group {
             success.add(new Point(col,row));
         }
         if(cnt>=5){
-            isFinished=true;
+
             return true;
         }
         return false;

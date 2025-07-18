@@ -47,7 +47,7 @@ public class BaseComputerAi extends BasePlayer {
     public BaseComputerAi() {
         int i = 0;
         this.currentRange = new CalcuteRange(0, 0, 0, i);
-        this.far = new FirstAnalysisResult(1, (Point) null, i);
+        this.far = new FirstAnalysisResult(1, (Point) null, i,0);
     }
 
     private class CalcuteRange {
@@ -655,6 +655,11 @@ public class BaseComputerAi extends BasePlayer {
             }
         }
         return i2;
+    }
+
+    @Override
+    public boolean hasWin() {
+        return false;
     }
 
     @Override // five.itcast.cn.player.interfaces.IPlayer

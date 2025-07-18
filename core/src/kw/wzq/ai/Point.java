@@ -1,4 +1,4 @@
-package five.itcast.cn.player.base;
+package kw.wzq.ai;
 
 /**
  * Author by tony
@@ -42,5 +42,13 @@ public class Point {
         }
         Point point = (Point) obj;
         return this.x == point.x && this.y == point.y;
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 }
