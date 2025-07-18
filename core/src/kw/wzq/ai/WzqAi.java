@@ -56,6 +56,10 @@ public class WzqAi {
         return allFree;
     }
 
+    public void removePoint(Point aiPoint) {
+        allFreePoints.remove(aiPoint);
+    }
+
     private class CalcuteRange {
         int xStart;
         int xStop;
@@ -109,7 +113,7 @@ public class WzqAi {
         calcuteRange4.yStop = calcuteRange4.yStop >= this.maxY ? this.maxY - 1 : this.currentRange.yStop;
     }
 
-    private Point doAnalysis(List<Point> mySelfPoints, List<Point> oppontPoints) {
+    public Point doAnalysis(List<Point> mySelfPoints, List<Point> oppontPoints) {
         //我方先手
         if (oppontPoints.size()==0){
             return new Point(this.maxX / 2, this.maxY / 2);
@@ -329,6 +333,49 @@ public class WzqAi {
         Point bestPoint2 = getBestPoint();
         return bestPoint2 != null ? bestPoint2 : this.computerSencodResults.get(0).point;
     }
+
+//    @Override // five.itcast.cn.player.base.BaseComputerAi
+//    protected Point getBestPoint() {
+//        Point bestPoint = getBestPoint(this.computerDouble3Alives, this.humanSencodResults);
+//        if (bestPoint != null) {
+//            return bestPoint;
+//        }
+//        Point bestPoint2 = getBestPoint(this.computer3Alives, this.humanSencodResults);
+//        if (bestPoint2 != null) {
+//            return bestPoint2;
+//        }
+//        Point bestPoint3 = getBestPoint(this.humanDouble3Alives, this.computerSencodResults);
+//        if (bestPoint3 != null) {
+//            return bestPoint3;
+//        }
+//        Point bestPoint4 = getBestPoint(this.human3Alives, this.computerSencodResults);
+//        if (bestPoint4 != null) {
+//            return bestPoint4;
+//        }
+//        Point bestPoint5 = getBestPoint(this.human4HalfAlives, this.computerSencodResults);
+//        if (bestPoint5 != null) {
+//            return bestPoint5;
+//        }
+//        Point bestPoint6 = getBestPoint(this.computerDouble2Alives, this.humanSencodResults);
+//        if (bestPoint6 != null) {
+//            return bestPoint6;
+//        }
+//        Point bestPoint7 = getBestPoint(this.computer2Alives, this.humanSencodResults);
+//        if (bestPoint7 != null) {
+//            return bestPoint7;
+//        }
+//        Point bestPoint8 = getBestPoint(this.computer3HalfAlives, this.humanSencodResults);
+//        if (bestPoint8 != null) {
+//            return bestPoint8;
+//        }
+//        Point bestPoint9 = getBestPoint(this.humanDouble2Alives, this.computerSencodResults);
+//        if (bestPoint9 != null) {
+//            return bestPoint9;
+//        }
+//        Point bestPoint10 = getBestPoint(this.human2Alives, this.computerSencodResults);
+//        return bestPoint10 != null ? bestPoint10 : getBestPoint(this.human3HalfAlives, this.computerSencodResults);
+//    }
+
 
     protected Point getBestPoint() {
         Point bestPoint = getBestPoint(this.computerDouble3Alives, this.humanSencodResults);
