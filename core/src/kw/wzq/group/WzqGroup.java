@@ -1,6 +1,7 @@
 package kw.wzq.group;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -65,6 +66,19 @@ public class WzqGroup extends Group {
                 ai.removePoint(handPoint.get(handPoint.size() - 1));
                 boolean end = isEnd(yy, xx);
                 if (end){
+                    for (Point point : success) {
+                        int x1 = point.getX();
+                        int y1 = point.getY();
+                        Actor actor = touchGroup.findActor("image" + x1 + "" + y1);
+                        actor.addAction(
+                                Actions.forever(
+                                    Actions.sequence(
+                                            Actions.scaleTo(1.1f,1.1f,0.2f),
+                                            Actions.scaleTo(0.9f,0.9f,0.2f)
+                                            )
+                                )
+                        );
+                    }
                     touchGroup.setTouchable(Touchable.disabled);
                 }else {
                     touchGroup.setTouchable(Touchable.disabled);
@@ -86,6 +100,19 @@ public class WzqGroup extends Group {
                     ai.removePoint(aiPoint);
                     boolean end = isEnd(aiPoint.getY(), aiPoint.getX());
                     if (end){
+                        for (Point point : success) {
+                            int x1 = point.getX();
+                            int y1 = point.getY();
+                            Actor actor = touchGroup.findActor("image" + x1 + "" + y1);
+                            actor.addAction(
+                                    Actions.forever(
+                                            Actions.sequence(
+                                                    Actions.scaleTo(1.1f,1.1f,0.2f),
+                                                    Actions.scaleTo(0.9f,0.9f,0.2f)
+                                            )
+                                    )
+                            );
+                        }
                         System.out.println("computer success!");
                         touchGroup.setTouchable(Touchable.disabled);
                         return;
