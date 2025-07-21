@@ -66,10 +66,12 @@ public class WzqGroup extends Group {
                 ai.removePoint(handPoint.get(handPoint.size() - 1));
                 boolean end = isEnd(yy, xx);
                 if (end){
+
                     for (Point point : success) {
                         int x1 = point.getX();
                         int y1 = point.getY();
-                        Actor actor = touchGroup.findActor("image" + x1 + "" + y1);
+                        Actor actor = touchGroup.findActor("image" + y1 + "" + x1);
+                        actor.setOrigin(Align.center);
                         actor.addAction(
                                 Actions.forever(
                                     Actions.sequence(
@@ -101,9 +103,19 @@ public class WzqGroup extends Group {
                     boolean end = isEnd(aiPoint.getY(), aiPoint.getX());
                     if (end){
                         for (Point point : success) {
+                            System.out.println(point);
+                        }
+
+                        for (Actor child : touchGroup.getChildren()) {
+                            System.out.println(child.getName());
+                        }
+
+                        for (Point point : success) {
                             int x1 = point.getX();
                             int y1 = point.getY();
-                            Actor actor = touchGroup.findActor("image" + x1 + "" + y1);
+                            System.out.println(x1+ "   "+y1);
+                            Actor actor = touchGroup.findActor("image" + y1 + "" + x1);
+                            actor.setOrigin(Align.center);
                             actor.addAction(
                                     Actions.forever(
                                             Actions.sequence(
